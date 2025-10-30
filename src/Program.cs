@@ -56,24 +56,17 @@ app.MapPost("/user",  async (IConfiguration configuration, ILogger<Program> logg
     });
 });
 
-app.MapPost("/webhook", async (ILogger<Program> logger, WebhookRequest request) => {
-    try
-    {
-        logger.LogInformation(
-            "[DEMO][WEBHOOK] Received webhook with: {Id}, {Name}, {Email}, {Status}, {Message}",
-            request?.Id,
-            request?.Name,
-            request?.Email,
-            request?.Status,
-            request?.Message);
+app.MapPost("/webhook", async (ILogger<Program> logger, WebhookRequest request) =>
+{
+    logger.LogInformation(
+        "[DEMO][WEBHOOK] Received webhook with: {Id}, {Name}, {Email}, {Status}, {Message}",
+        request?.Id,
+        request?.Name,
+        request?.Email,
+        request?.Status,
+        request?.Message);
 
-        return Results.NoContent();
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "[DEMO][WEBHOOK] Error processing webhook");
-        return Results.BadRequest(new { error = ex.Message });
-    }
+    return Results.NoContent();
 });
 
 
@@ -97,7 +90,7 @@ public record ValidationResponse(
     string Status);
 
 public record WebhookRequest(
-    string Id,
+    Guid Id,
     string Name,
     string Email,
     string Status,

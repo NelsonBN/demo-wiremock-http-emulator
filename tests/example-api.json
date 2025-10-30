@@ -19,7 +19,7 @@
           "status": "PENDING"
         }
       },
-      "postServeActions": [
+      "serveEventListeners": [
         {
           "name": "webhook",
           "parameters": {
@@ -28,7 +28,12 @@
             "headers": {
               "Content-Type": "application/json"
             },
-            "body": "{\"id\":\"{{jsonPath request.body '$.id'}}\",\"name\":\"{{jsonPath request.body '$.name'}}\",\"email\":\"{{jsonPath request.body '$.email'}}\",\"status\":\"SUCCESS\",\"message\":\"Validation completed\"}"
+            "body": "{\"id\":\"{{jsonPath originalRequest.body '$.id'}}\",\"name\":\"{{jsonPath originalRequest.body '$.name'}}\",\"email\":\"{{jsonPath originalRequest.body '$.email'}}\",\"status\":\"SUCCESS\",\"message\":\"Validation completed\"}",
+
+            "delay": {
+              "type": "fixed",
+              "milliseconds": 2500
+            }
           }
         }
       ]
