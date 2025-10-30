@@ -1,0 +1,32 @@
+networks:
+  demo:
+    driver: bridge
+
+services:
+
+  demo-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: demo-api
+    container_name: demo-api
+    ports:
+      - 8080:8080
+    environment:
+      - ValidationEndpoint=http://wiremock:8080
+    networks:
+      - demo
+
+
+  wiremock:
+    image: wiremock/wiremock:3.12.1-alpine
+    container_name: wiremock
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./tests:/home/wiremock/mappings
+    command:
+      - --global-response-templating
+      - --verbose
+    networks:
+      - demo

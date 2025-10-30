@@ -1,0 +1,21 @@
+{
+  "mappings": [
+    {
+      "id": "a1b2c3d4-e5f6-4a5b-8c9d-1e2f3a4b5c6d",
+      "name": "Get Users",
+      "request": {
+        "method": "GET",
+        "url": "/api/validate"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "status": "pending"
+        }
+      }
+    }
+  ]
+}
