@@ -4,18 +4,34 @@
       "id": "a1b2c3d4-e5f6-4a5b-8c9d-1e2f3a4b5c6d",
       "name": "Get Users",
       "request": {
-        "method": "GET",
+        "method": "POST",
         "url": "/api/validate"
       },
       "response": {
-        "status": 200,
+        "status": 202,
         "headers": {
           "Content-Type": "application/json"
         },
         "jsonBody": {
-          "status": "pending"
+          "id": "{{jsonPath request.body '$.id'}}",
+          "name": "{{jsonPath request.body '$.name'}}",
+          "email": "{{jsonPath request.body '$.email'}}",
+          "status": "PENDING"
         }
-      }
+      },
+      "postServeActions": [
+        {
+          "name": "webhook",
+          "parameters": {
+            "method": "POST",
+            "url": "http://demo-api:8080/webhook",
+            "headers": {
+              "Content-Type": "application/json"
+            },
+            "body": "{\"id\":\"{{jsonPath request.body '$.id'}}\",\"name\":\"{{jsonPath request.body '$.name'}}\",\"email\":\"{{jsonPath request.body '$.email'}}\",\"status\":\"SUCCESS\",\"message\":\"Validation completed\"}"
+          }
+        }
+      ]
     }
   ]
 }

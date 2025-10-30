@@ -1,6 +1,7 @@
 using System;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -25,32 +26,56 @@ app.MapPost("/user",  async (IConfiguration configuration, ILogger<Program> logg
     var endpoint = configuration["ValidationEndpoint"] ?? throw new AggregateException();
 
     logger.LogInformation(
-        "Received user registration with Name: {Name} and Email: {Email}",
+        "[DEMO][USER] Received user registration with Name: {Name} and Email: {Email}",
         request.Name,
         request.Email);
 
-    var id = Guid.NewGuid();
+    var validationRequest = new ValidationRequest(
+        Guid.NewGuid(),
+        request.Name,
+        request.Email);
 
     var client = factory.CreateClient("ValidationApi");
-    var response = await client.GetFromJsonAsync<ValidationRequest>("api/validate", cancellationToken);
+    var response = await client.PostAsJsonAsync(
+        "api/validate",
+        validationRequest,
+        cancellationToken);
+
+    var content = await response.Content.ReadAsStringAsync(cancellationToken);
+    var responseData = JsonSerializer.Deserialize<ValidationResponse>(content, new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    });
 
     return Results.Ok(new
     {
-        Id = id,
-        request.Name,
-        request.Email,
-        ValidationStatus = response?.Status
+        responseData?.Id,
+        responseData?.Name,
+        responseData?.Email,
+        responseData?.Status
     });
 });
 
-app.MapPost("/webhook", (ILogger<Program> logger, WebhookRequest request) => {
-    logger.LogInformation(
-        "Received webhook with Message: {Message}",
-        request.Message);
-    var id = Guid.NewGuid();
+app.MapPost("/webhook", async (ILogger<Program> logger, WebhookRequest request) => {
+    try
+    {
+        logger.LogInformation(
+            "[DEMO][WEBHOOK] Received webhook with: {Id}, {Name}, {Email}, {Status}, {Message}",
+            request?.Id,
+            request?.Name,
+            request?.Email,
+            request?.Status,
+            request?.Message);
 
-    return Results.NoContent();
+        return Results.NoContent();
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "[DEMO][WEBHOOK] Error processing webhook");
+        return Results.BadRequest(new { error = ex.Message });
+    }
 });
+
 
 
 await app.RunAsync();
@@ -60,6 +85,20 @@ public record RegisterRequest(
     string Name,
     string Email);
 
-public record ValidationRequest(string Status);
+public record ValidationRequest(
+    Guid Id,
+    string Name,
+    string Email);
 
-public record WebhookRequest(string Message);
+public record ValidationResponse(
+    Guid Id,
+    string Name,
+    string Email,
+    string Status);
+
+public record WebhookRequest(
+    string Id,
+    string Name,
+    string Email,
+    string Status,
+    string Message);
