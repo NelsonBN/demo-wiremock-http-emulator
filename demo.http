@@ -8,7 +8,7 @@ post {{clientApi}}/user
 Content-Type: application/json
 
 {
-    "name": "john Doe",
+    "name": "John Doe",
     "email": "john.doe@fake.com"
 }
 

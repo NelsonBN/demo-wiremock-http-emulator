@@ -15,7 +15,7 @@
           "id": "{{jsonPath request.body '$.id'}}",
           "name": "{{jsonPath request.body '$.name'}}",
           "email": "{{jsonPath request.body '$.email'}}",
-          "status": "PENDING"
+          "status": "{{#eq (jsonPath request.body '$.name') 'Nelson'}}APPROVED{{else}}PENDING{{/eq}}"
         }
       },
       "serveEventListeners": [
